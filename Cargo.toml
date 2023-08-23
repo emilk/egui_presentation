@@ -1,5 +1,5 @@
 [package]
-name = "eframe_template"
+name = "egui_presentation"
 version = "0.1.0"
 authors = ["Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"]
 edition = "2021"
@@ -14,9 +14,10 @@ eframe = { version = "0.22.0", default-features = false, features = [
     "glow",          # Use the glow rendering backend. Alternative: "wgpu".
     "persistence",   # Enable restoring app state when restarting the app.
 ] }
+egui_commonmark = { version = "0.7", features = ["syntax_highlighting"] }
+env_logger = "0.10"
+itertools = "0.11"
 log = "0.4"
-
-# You only need serde if you want app persistence:
 serde = { version = "1", features = ["derive"] }
 
 # native:
