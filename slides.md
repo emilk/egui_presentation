@@ -3,9 +3,16 @@
 
 An easy-to-use immediate mode GUI in Rust that runs on both web and native.
 
-The most popular pure Rust GUI library on [crates.io](https://crates.io/search?q=gui&sort=downloads) (second only to GTK).
+The most popular pure Rust GUI library by downloads on [crates.io](https://crates.io/search?q=gui&sort=downloads) (second only to GTK).
 
 Limited accessibility support via [accesskit](https://crates.io/crates/accesskit).
+
+-------------------------------------------------------------------------------
+
+# This presentation
+* What is it?
+* How does it work?
+* How is it integrated?
 
 -------------------------------------------------------------------------------
 
@@ -55,6 +62,8 @@ if ui.button("+").clicked() {
 -------------------------------------------------------------------------------
 
 # Context
+
+How to write your own egui integration:
 ```rs
 let mut ctx = egui::Context::default();
 
@@ -107,17 +116,63 @@ pub enum Event {
 -------------------------------------------------------------------------------
 
 # Ui
-A region of the screen with a layout where you can put widgets.
+A hierarchial region of the screen with a layout where you can put widgets.
 
 ``` rs
-ui.label("Some text");
+fn show_some_text(ui: &mut egui::Ui) {
+    ui.label("Some text");
+    ui.horizontal(|ui| {
+        ui.label("More");
+        ui.label("text");
+    });
+    ui.label("Even more text");
+}
+```
+
+!!!ui_example
+
+-------------------------------------------------------------------------------
+
+# Scopes
+
+* Different layouts
+* Containers widgets (`ScrollArea`, `Window`, …)
+* Scopes with different styling
+* …
+
+``` rs
+// Error prone:
+ui.push_horizontal();
+    ui.label("More");
+    ui.label("text");
+ui.pop_horizontal();
+```
+
+``` rs
+// I wish:
+with ui = ui.horizontal() {
+    ui.label("More");
+    ui.label("text");
+}
+```
+
+``` rs
+// Ugly `Drop` hack? Requires lifetime on `Ui` :/
+{
+    let ui = ui.horizontal()
+    ui.label("More");
+    ui.label("text");
+}
+```
+
+``` rs
+// Solution: closuers
 ui.horizontal(|ui| {
     ui.label("More");
     ui.label("text");
 });
 ```
 
-!!!ui_example
 
 -------------------------------------------------------------------------------
 
@@ -129,12 +184,6 @@ ui.horizontal(|ui| {
 | Max Rect  |   Try to keep within these bounds (wrap width)   |
 | Direction |   Down, Up, Left-to-Right, Right-to-Left         |
 | Cursor    |   Where to place the next widget                 |
-
--------------------------------------------------------------------------------
-
-# Id
-
-auto vs persist
 
 -------------------------------------------------------------------------------
 
@@ -157,7 +206,7 @@ if ui.add(egui::Slider::new(&mut volume, 0.0..=100.0)).changed() {
 
 -------------------------------------------------------------------------------
 
-# Custom widget
+# Writing a widget
 
 ``` rs
 fn toggle_widget(ui: &mut Ui, on: &mut bool) -> Response {
@@ -194,6 +243,42 @@ toggle_widget(ui, &mut some_bool);
 
 -------------------------------------------------------------------------------
 
+# Widgets
+
+```rs
+ui.add(egui::Label::new("Hello"));
+
+egui::Label::new("Hello").ui(ui);
+
+ui.label("Hello");
+```
+
+
+``` rs
+pub trait Widget {
+    fn ui(self, ui: &mut Ui) -> Response;
+}
+```
+
+-------------------------------------------------------------------------------
+
+# Builder pattern
+
+```rs
+ui.add(
+    Slider::new(&mut volume, 0.0..=120.0)
+        .logarithmic(true)
+        .suffix("dB")
+);
+```
+
+``` rs
+// I wish :(
+ui.slider(&mut volume, 0.0..=120.0, logarithmic=true, suffix="dB");
+```
+
+-------------------------------------------------------------------------------
+
 # FullOutput
 
 ``` rs
@@ -215,7 +300,7 @@ pub struct FullOutput {
 
 -------------------------------------------------------------------------------
 
-# FullOutput
+# PlatformOutput
 
 ``` rs
 pub struct PlatformOutput {
@@ -236,6 +321,13 @@ pub struct PlatformOutput {
 -------------------------------------------------------------------------------
 
 # Painting
+
+`Shape` ➡ tesslator ➡ `Mesh`
+
+Uses feathering for anti-aliasing
+
+`ab_glyph` ➡ font image
+
 ``` rs
 pub enum Shape {
     Circle(CircleShape),
@@ -252,28 +344,116 @@ pub struct CircleShape {
     pub fill: Color32,
     pub stroke: Stroke,
 }
+
+pub struct Stroke {
+    pub width: f32,
+    pub color: Color32,
+}
 ```
 
-`Shape` ➡ tesslator ➡ `Mesh`
+-------------------------------------------------------------------------------
 
-Uses feathering for anti-aliasing
+# Id problem
 
-`ab_glyph` ➡ font image
+Need a consistent id for widgets for:
+* Interaction (is this widget being dragged?)
+* Storing state (what is the scroll offset in this `ScrollArea`?)
+
+Consider:
+
+``` rs
+// How will egui keep track which is beeing dragged?
+ui.add(Slider::new(&mut x, 0.0..=1.0));
+ui.add(Slider::new(&mut y, 0.0..=1.0));
+```
+
+Manual ids? Annoying and error-prone :(
+
+``` rs
+ui.add(Slider::new("x-slider", &mut x, 0.0..=1.0));
+ui.add(Slider::new("y-slider", &mut x, 0.0..=1.0));
+```
+
+Automatic ids?
+
+``` rs
+ui.add(Slider::new(&mut x, 0.0..=1.0));
+
+if foo {
+    // !! Automatic ids will change depending on if this branch is taken!
+    ui.label("Blah blah");
+}
+
+ui.add(Slider::new(&mut x, 0.0..=1.0));
+```
+
+-------------------------------------------------------------------------------
+
+# Id solution
+A hybrid!
+
+* Hirerarchial using `Ui`
+* Automatic ids for widgets that don't store state (buttons, sliders, …)
+* Explicit id sources for widgets that store state (collapsing header, scroll areas, …
+
+Implemented as a hash of parent `Ui::id` and the id source (e.g. a string).
+
+``` rs
+pub struct Id(u64);
+```
+
+-------------------------------------------------------------------------------
+# Id clashes
+
+Print warnings on `Id` clashes.
+
+``` rs
+ui.label("Ok, different names:");
+ui.collapsing("First header", |ui| {
+    ui.label("Contents of first foldable ui");
+});
+ui.collapsing("Second header", |ui| {
+    ui.label("Contents of second foldable ui");
+});
+
+ui.add_space(16.0);
+
+ui.label("Oh-no, same name = same id source:");
+ui.collapsing("Collapsing header", |ui| {
+    ui.label("Contents of first foldable ui");
+});
+ui.collapsing("Collapsing header", |ui| {
+    ui.label("Contents of second foldable ui");
+});
+```
+
+!!!id_clashes
+
 
 -------------------------------------------------------------------------------
 
 # eframe
+The offical egui framework
 
--------------------------------------------------------------------------------
-
-# Shortcomings
-* [Immediate mode limitations](https://github.com/emilk/egui#why-immediate-mode)
-* Styling
-* Composition
+* Windows, Mac, Linux, Android, iOS, Web
+* `winit` on native
+* `js-sys` on web
+* Renders using either `glow` (OpenGL) or `wgpu`
 
 -------------------------------------------------------------------------------
 
 # Summary
+Strengths
+* Easy to use
+* Very little code
+* Runs anywhere
+
+Shortcomings
+* [Immediate mode limitations](https://github.com/emilk/egui#why-immediate-mode)
+    * But suprisingly small problem in practice!?
+* Styling
+* Composition
+* Embedding in other languages
 
 -------------------------------------------------------------------------------
 

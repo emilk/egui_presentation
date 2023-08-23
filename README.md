@@ -5,6 +5,7 @@ A presentation about [egui](https://github.com/emilk/egui), implemented in egui.
 Work-in-progress
 
 ## TODO
+* [ ] Live-loading of `slides.md`
 * [ ] Fix the images for the Wasm build
 * [ ] Make the presentation avilable on <https://emilk.github.io/egui_presentation/>.
 

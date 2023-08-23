@@ -8,6 +8,8 @@ enum SlideMarker {
 
     ToggleWidget,
 
+    IdClashesExample,
+
     UnknownMarker(String),
 }
 
@@ -35,6 +37,7 @@ impl Slide {
                         "counter_example" => SlideMarker::CounterExample,
                         "ui_example" => SlideMarker::UiExample,
                         "toggle_widget" => SlideMarker::ToggleWidget,
+                        "id_clashes" => SlideMarker::IdClashesExample,
                         _ => {
                             log::warn!("Unknown slide marker: {marker_str:?}");
                             SlideMarker::UnknownMarker(marker_str.to_owned())
@@ -117,8 +120,9 @@ impl Default for Presentation {
 
 impl Presentation {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        cc.egui_ctx
-            .set_pixels_per_point(cc.integration_info.native_pixels_per_point.unwrap_or(1.0) * 2.0);
+        cc.egui_ctx.set_pixels_per_point(
+            cc.integration_info.native_pixels_per_point.unwrap_or(1.0) * 1.75,
+        );
 
         if let Some(storage) = cc.storage {
             return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
@@ -175,48 +179,80 @@ impl Presentation {
             markers,
         } = slide;
 
-        CommonMarkViewer::new("viewer")
-            .max_image_width(Some(ui.available_width().floor() as _))
-            .show(ui, cm_cache, markdown);
+        egui::ScrollArea::vertical()
+            .auto_shrink([false, false])
+            .show(ui, |ui| {
+                CommonMarkViewer::new("viewer")
+                    .max_image_width(Some(ui.available_width().floor() as _))
+                    .show(ui, cm_cache, markdown);
 
-        for marker in markers {
-            match marker {
-                SlideMarker::CounterExample => {
+                for marker in markers {
                     ui.separator();
-                    ui.horizontal(|ui| {
-                        if ui.button("-").clicked() {
-                            *counter -= 1;
-                        }
+                    slider_marker_ui(ui, marker, counter, some_bool);
+                }
+            });
+    }
+}
 
-                        ui.label(counter.to_string());
-
-                        if ui.button("+").clicked() {
-                            *counter += 1;
-                        }
-                    });
+fn slider_marker_ui(
+    ui: &mut egui::Ui,
+    marker: &SlideMarker,
+    counter: &mut i32,
+    some_bool: &mut bool,
+) {
+    match marker {
+        SlideMarker::CounterExample => {
+            ui.horizontal(|ui| {
+                if ui.button("-").clicked() {
+                    *counter -= 1;
                 }
 
-                SlideMarker::UiExample => {
-                    ui.separator();
-                    ui.label("Some text");
-                    ui.horizontal(|ui| {
-                        ui.label("More");
-                        ui.label("text");
-                    });
-                }
+                ui.label(counter.to_string());
 
-                SlideMarker::ToggleWidget => {
-                    ui.separator();
-                    toggle_widget(ui, some_bool);
+                if ui.button("+").clicked() {
+                    *counter += 1;
                 }
+            });
+        }
 
-                SlideMarker::UnknownMarker(marker) => {
-                    ui.label(
-                        egui::RichText::new(format!("⚠ Unknown slider marker: {marker:?} ⚠"))
-                            .color(ui.visuals().warn_fg_color),
-                    );
-                }
-            }
+        SlideMarker::UiExample => {
+            ui.label("Some text");
+            ui.horizontal(|ui| {
+                ui.label("More");
+                ui.label("text");
+            });
+            ui.label("Even more text");
+        }
+
+        SlideMarker::ToggleWidget => {
+            toggle_widget(ui, some_bool);
+        }
+
+        SlideMarker::IdClashesExample => {
+            ui.label("Ok, different names:");
+            ui.collapsing("First header", |ui| {
+                ui.label("Contents of first foldable ui");
+            });
+            ui.collapsing("Second header", |ui| {
+                ui.label("Contents of second foldable ui");
+            });
+
+            ui.add_space(16.0);
+
+            ui.label("Oh-no, same name = same id source:");
+            ui.collapsing("Collapsing header", |ui| {
+                ui.label("Contents of first foldable ui");
+            });
+            ui.collapsing("Collapsing header", |ui| {
+                ui.label("Contents of second foldable ui");
+            });
+        }
+
+        SlideMarker::UnknownMarker(marker) => {
+            ui.label(
+                egui::RichText::new(format!("⚠ Unknown slider marker: {marker:?} ⚠"))
+                    .color(ui.visuals().warn_fg_color),
+            );
         }
     }
 }
