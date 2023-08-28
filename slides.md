@@ -31,7 +31,7 @@ Limited accessibility support via [accesskit](https://crates.io/crates/accesskit
 # History
 Wrote the first piece of code in 2018, but started seriously during 2020 pandemic.
 
-Heavily inspired by [Dear ImGui](https://github.com/ocornut/imgui), my favoruite GUI library for C++.
+Heavily inspired by [Dear ImGui](https://github.com/ocornut/imgui), my favorite GUI library for C++.
 
 I wanted to spread the word of immediate mode, and I wanted to bring it to the Rust community and to the web.
 
@@ -362,7 +362,7 @@ Need a consistent id for widgets for:
 Consider:
 
 ``` rs
-// How will egui keep track which is beeing dragged?
+// How will egui keep track which is being dragged?
 ui.add(Slider::new(&mut x, 0.0..=1.0));
 ui.add(Slider::new(&mut y, 0.0..=1.0));
 ```
@@ -433,7 +433,7 @@ ui.collapsing("Collapsing header", |ui| {
 -------------------------------------------------------------------------------
 
 # eframe
-The offical egui framework
+The official egui framework
 
 * Windows, Mac, Linux, Android, iOS, Web
 * `winit` on native
@@ -450,7 +450,7 @@ Strengths
 
 Shortcomings
 * [Immediate mode limitations](https://github.com/emilk/egui#why-immediate-mode)
-    * But suprisingly small problem in practice!?
+    * But surprisingly small problem in practice!?
 * Styling
 * Composition
 * Embedding in other languages

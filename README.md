@@ -7,7 +7,7 @@ Work-in-progress
 ## TODO
 * [ ] Live-loading of `slides.md`
 * [ ] Fix the images for the Wasm build
-* [x] Make the presentation avilable on <https://emilk.github.io/egui_presentation/>.
+* [x] Make the presentation available on <https://emilk.github.io/egui_presentation/>.
 
 ### Running it
 
