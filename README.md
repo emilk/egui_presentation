@@ -2,12 +2,11 @@
 
 A presentation about [egui](https://github.com/emilk/egui), implemented in egui.
 
-Work-in-progress
+You can view the presentation at <https://emilk.github.io/egui_presentation/>.
 
 ## TODO
 * [ ] Live-loading of `slides.md`
 * [ ] Fix the images for the Wasm build
-* [x] Make the presentation available on <https://emilk.github.io/egui_presentation/>.
 
 ### Running it
 
