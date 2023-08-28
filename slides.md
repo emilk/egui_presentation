@@ -24,7 +24,7 @@ Limited accessibility support via [accesskit](https://crates.io/crates/accesskit
 * `egui-winit`
 
 ## 3rd party
-![integrations](https://emilk.github.io/egui_presentation/images/integrations.png)
+![integrations](images/integrations.png)
 
 -------------------------------------------------------------------------------
 
@@ -33,7 +33,12 @@ Wrote the first piece of code in 2018, but started seriously during 2020 pandemi
 
 Heavily inspired by [Dear ImGui](https://github.com/ocornut/imgui), my favorite GUI library for C++.
 
-I wanted to spread the word of immediate mode, and I wanted to bring it to the Rust community and to the web.
+Not my first GUI, but my first immediate mode one and my first in Rust.
+
+-------------------------------------------------------------------------------
+
+# Crates
+![crates](images/crates.png)
 
 -------------------------------------------------------------------------------
 
@@ -53,11 +58,6 @@ if ui.button("+").clicked() {
 ```
 
 !!!counter_example
-
--------------------------------------------------------------------------------
-
-# Crates
-![crates](https://emilk.github.io/egui_presentation/images/crates.png)
 
 -------------------------------------------------------------------------------
 
