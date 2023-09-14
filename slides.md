@@ -24,7 +24,7 @@ Limited accessibility support via [accesskit](https://crates.io/crates/accesskit
 * `egui-winit`
 
 ## 3rd party
-![integrations](images/integrations.png)
+![integrations](bytes://integrations.png)
 
 -------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ Not my first GUI, but my first immediate mode one and my first in Rust.
 -------------------------------------------------------------------------------
 
 # Crates
-![crates](images/crates.png)
+![crates](bytes://crates.png)
 
 -------------------------------------------------------------------------------
 

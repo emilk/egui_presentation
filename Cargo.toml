@@ -8,6 +8,7 @@ rust-version = "1.65"
 
 [dependencies]
 egui = "0.22.0"
+egui_extras = { version = "0.22.0", features = ["image"] }
 eframe = { version = "0.22.0", default-features = false, features = [
     "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
     "default_fonts", # Embed the default egui fonts.
@@ -17,6 +18,7 @@ eframe = { version = "0.22.0", default-features = false, features = [
 egui_commonmark = { version = "0.7", features = ["syntax_highlighting"] }
 env_logger = "0.10"
 itertools = "0.11"
+image = { version = "0.24", default-features = false, features = ["png"] }
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
 
@@ -40,8 +42,10 @@ opt-level = 2
 [patch.crates-io]
 
 # If you want to use the bleeding edge version of egui and eframe:
-# egui = { git = "https://github.com/emilk/egui", branch = "master" }
-# eframe = { git = "https://github.com/emilk/egui", branch = "master" }
+egui = { git = "https://github.com/emilk/egui", rev = "67a3fcae383044def7450b311ddc1f79e36eaae0" }
+egui_extras = { git = "https://github.com/emilk/egui", rev = "67a3fcae383044def7450b311ddc1f79e36eaae0" }
+eframe = { git = "https://github.com/emilk/egui", rev = "67a3fcae383044def7450b311ddc1f79e36eaae0" }
+egui_commonmark = { git = "https://github.com/lampsitter/egui_commonmark.git", rev = "7ae829780a450fa55c2bf4582d491527e070acf4" }
 
 # If you fork https://github.com/emilk/egui you can test with:
 # egui = { path = "../egui/crates/egui" }

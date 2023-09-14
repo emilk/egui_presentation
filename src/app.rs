@@ -120,6 +120,13 @@ impl Default for Presentation {
 
 impl Presentation {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        cc.egui_ctx
+            .include_bytes("bytes://crates.png", include_bytes!("../images/crates.png"));
+        cc.egui_ctx.include_bytes(
+            "bytes://integrations.png",
+            include_bytes!("../images/integrations.png"),
+        );
+
         cc.egui_ctx.set_pixels_per_point(
             cc.integration_info.native_pixels_per_point.unwrap_or(1.0) * 1.75,
         );
